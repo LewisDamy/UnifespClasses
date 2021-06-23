@@ -158,6 +158,12 @@ struct NO* remove_atual(struct NO* atual)
         return no2;
     }
 
+    if(atual->dir == NULL)
+    {
+        no2 = atual->esq;
+        free(atual);
+        return no2;
+    }
     //searching for child most to the right into the left subtree
     no1 = atual;
     no2 = atual->esq;
@@ -238,6 +244,67 @@ int remove_ArvBin(ArvBin *raiz, int valor)
     return 0;
 }
 
+//Function that find the minimum value found in that tree
+struct NO* minValueNode(struct NO* no) 
+{
+    struct NO* atual = no;
+
+    // Loop down to find the leftmost leaf
+    while (atual && atual->esq != NULL)
+        atual = atual->esq;
+    
+    return atual;
+}
+
+//Another struct that delete node but with a different approach
+struct NO* delete_node(struct NO* raiz, int valor)
+{
+    // Base case
+    if (raiz == NULL)
+        return raiz;
+    
+    // If the value to be deleted is smaller than the root's value
+    if (valor < raiz->info)
+    {
+        // Then it lies in the left subtree 
+        raiz->esq = delete_node(raiz->esq, valor);
+    }
+
+    // If the value to be deleted is greater than the root's value
+    else if(valor > raiz->info)
+    {
+        // Then it lies in the right subtree
+        raiz->dir = delete_node(raiz->dir, valor);
+    }
+
+    // If the value is the same as root's key, then this is the node to be deleted
+    else
+    {
+        // node with only one child or no child case
+        if (raiz->esq == NULL)
+        {
+            struct NO* temp = raiz->dir;
+            free(raiz);
+            return temp;
+        }
+        else if(raiz->dir == NULL)
+        {
+            struct NO* temp = raiz->esq;
+            free(raiz);
+            return temp;
+        }
+
+        // Note with two children, get the inorder successor (smallest in the right subtree)
+        struct NO* temp = minValueNode(raiz->dir);
+
+        // Copy the inorder successor's content to this node
+        raiz->info = temp->info;
+
+        // Delete the inorder successor
+        raiz->dir = delete_node(raiz->dir, temp->info);
+    }
+    return raiz;
+}
 
 
 int estaVazia_ArvBin(ArvBin *raiz)
@@ -352,6 +419,21 @@ int consulta_ArvBin(ArvBin *raiz, int valor)
     return 0;
 }
 
+void printTree(ArvBin no, int ident)
+{
+    int i;
+
+    if(no != NULL)
+    {
+        printf("|");
+
+        for(i = 0; i < ident-1; i++)
+            printf("-");
+        printf("(%d)\n", no->info);
+        printTree(no->esq, ident+2);
+        printTree(no->dir, ident+2);
+    }
+}
 
 
 
